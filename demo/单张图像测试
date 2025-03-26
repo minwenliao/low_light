@@ -1,0 +1,4 @@
+# 单张图像去噪声
+python basicsr/demo.py -opt options/test/Demo_test/RestorNet-width32.yml --input_path ./demo/0001-0015.png --output_path ./demo/denoise_0001-0015_img.png
+
+

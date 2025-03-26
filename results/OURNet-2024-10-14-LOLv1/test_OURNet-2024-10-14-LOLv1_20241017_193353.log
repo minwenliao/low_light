@@ -1,0 +1,83 @@
+2024-10-17 19:33:53,562 INFO: 
+                ____                _       _____  ____
+               / __ ) ____ _ _____ (_)_____/ ___/ / __ \
+              / __  |/ __ `// ___// // ___/\__ \ / /_/ /
+             / /_/ // /_/ /(__  )/ // /__ ___/ // _, _/
+            /_____/ \__,_//____//_/ \___//____//_/ |_|
+     ______                   __   __                 __      __
+    / ____/____   ____   ____/ /  / /   __  __ _____ / /__   / /
+   / / __ / __ \ / __ \ / __  /  / /   / / / // ___// //_/  / /
+  / /_/ // /_/ // /_/ // /_/ /  / /___/ /_/ // /__ / /<    /_/
+  \____/ \____/ \____/ \____/  /_____/\____/ \___//_/|_|  (_)
+    
+Version Information: 
+	BasicSR: 1.2.0+386ca20
+	PyTorch: 1.13.0
+	TorchVision: 0.14.0
+2024-10-17 19:33:53,563 INFO: 
+  name: OURNet-2024-10-14-LOLv1
+  model_type: ImageRestorationModel
+  scale: 1
+  num_gpu: 4
+  manual_seed: 10
+  datasets:[
+    val:[
+      name: LOL_eval15
+      type: PairedImageDataset
+      dataroot_gt: /home/wen/data_3/XianYu/2024_04/Model-main/datasets/LOLv1v2/LOLv1/eval15/high
+      dataroot_lq: /home/wen/data_3/XianYu/2024_04/Model-main/datasets/LOLv1v2/LOLv1/eval15/low
+      io_backend:[
+        type: disk
+      ]
+      phase: val
+      scale: 1
+    ]
+  ]
+  network_g:[
+    type: OURNet24
+    width: 48
+    enc_blk_nums: [2, 2, 4, 8]
+    middle_blk_num: 12
+    dec_blk_nums: [2, 2, 2, 2]
+  ]
+  path:[
+    pretrain_network_g: /home/wen/data_3/XianYu/2024_04/Model-main/experiments/OURNet_LOL_datasets/LOLv1/net_g_best.pth
+    strict_load_g: True
+    resume_state: None
+    root: /home/wen/data_3/XianYu/2024_04/Model-main
+    results_root: /home/wen/data_3/XianYu/2024_04/Model-main/results/OURNet-2024-10-14-LOLv1
+    log: /home/wen/data_3/XianYu/2024_04/Model-main/results/OURNet-2024-10-14-LOLv1
+    visualization: /home/wen/data_3/XianYu/2024_04/Model-main/results/OURNet-2024-10-14-LOLv1/visualization
+  ]
+  val:[
+    save_img: True
+    grids: False
+    use_image: False
+    metrics:[
+      psnr:[
+        type: calculate_psnr
+        crop_border: 4
+        test_y_channel: False
+      ]
+      ssim:[
+        type: calculate_ssim
+        crop_border: 4
+        test_y_channel: False
+      ]
+    ]
+  ]
+  dist_params:[
+    backend: nccl
+    port: 29500
+  ]
+  is_train: False
+  dist: True
+  rank: 0
+  world_size: 1
+
+2024-10-17 19:33:53,593 INFO: Dataset PairedImageDataset - LOL_eval15 is created.
+2024-10-17 19:33:53,594 INFO: Number of test images in LOL_eval15: 15
+2024-10-17 19:33:56,625 INFO: Loading OURNet24 model from /home/wen/data_3/XianYu/2024_04/Model-main/experiments/OURNet_LOL_datasets/LOLv1/net_g_best.pth.
+2024-10-17 19:34:14,875 INFO: Model [ImageRestorationModel] is created.
+2024-10-17 19:34:14,876 INFO: Testing LOL_eval15...
+2024-10-17 19:34:22,267 INFO: Validation LOL_eval15, 		 # psnr: 26.6617	 # ssim: 0.8572

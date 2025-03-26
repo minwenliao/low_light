@@ -1,0 +1,116 @@
+# general settings
+name: OURNet-LOLv2-Real_captured
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 4
+manual_seed: 10
+
+datasets:
+  train:
+    name: LOLv2-Real_captured
+    type: PairedImageDataset  #配对数据集
+    dataroot_gt: /home/adminroot/zzqcode/code/code/SPViT-master/Model_code/datasets/LOLv1v2/LOLv2/Real_captured/Train/Normal
+    dataroot_lq: /home/adminroot/zzqcode/code/code/SPViT-master/Model_code/datasets/LOLv1v2/LOLv2/Real_captured/Train/Low
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    gt_size: 256
+    use_flip: false
+    use_rot: false
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 1
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: LOLv2-Real_captured-test
+    type: PairedImageDataset
+    dataroot_gt: /home/adminroot/zzqcode/code/code/SPViT-master/Model_code/datasets/LOLv1v2/LOLv2/Real_captured/Test/Normal
+    dataroot_lq: /home/adminroot/zzqcode/code/code/SPViT-master/Model_code/datasets/LOLv1v2/LOLv2/Real_captured/Test/Low
+    io_backend:
+      type: disk
+
+
+network_g:
+  type: OURNet24  # 我们的模型
+  width: 48
+  enc_blk_nums: [ 2, 2, 4, 8 ]
+  middle_blk_num: 12
+  dec_blk_nums: [ 2, 2, 2, 2 ]
+#  width: 24
+#  enc_blk_nums: [2, 2, 4, 8]
+#  middle_blk_num: 6
+#  dec_blk_nums: [2, 2, 2, 2]
+
+
+# path
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+#  resume_state: auto  # 这里加上auto之后会接续断点进行训练
+
+# training settings
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-3
+    weight_decay: 0.
+    betas: [0.9, 0.9]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 400000
+    eta_min: !!float 1e-7
+
+  total_iter: 2000000  # 迭代 iter
+  warmup_iter: -1 # no warm up
+
+  # losses
+  pixel_opt:
+    type: PSNRLoss
+    loss_weight: 1
+    reduction: mean
+
+# validation settings
+val:
+  val_freq: !!float 1e3 # 1000
+#  save_img: false
+  save_img: True  # 训练过程中验证的时候是否保存图像
+  use_image: false
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
+
+
+# 单卡训练防止分布式的验证：python -m torch.distributed.launch --nproc_per_node=1 --master_port=4321 basicsr/train.py -opt options/train/OURNet_4_GPU/train_LOLv2_Real_captured.yml --launcher pytorch
+
+#  python -m torch.distributed.launch --nproc_per_node=1 --master_port=4321 basicsr/train.py -opt options/train/OURNet_4_GPU/train_LOLv2_Real_captured.yml --launcher pytorch
+
+# 指定GPU
+# CUDA_VISIBLE_DEVICES=1 python -m torch.distributed.launch --nproc_per_node=1 --master_port=4322 basicsr/train.py -opt options/train/OURNet_4_GPU/train_LOLv2_Real_captured.yml --launcher pytorch
